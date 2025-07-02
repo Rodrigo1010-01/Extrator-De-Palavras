@@ -2,18 +2,29 @@ import { PALAVRAS_RUINS } from "./palavrasRuins.js";
 
 const botaoMostraPalavras = document.querySelector('#botao-palavrachave');
 
-botaoMostraPalavras.addEventListener('click', mostraPalavrasChave);
+// Add a check to ensure the button exists before adding the event listener
+if (botaoMostraPalavras) {
+    botaoMostraPalavras.addEventListener('click', mostraPalavrasChave);
+} else {
+    console.error("Button with ID 'botao-palavrachave' not found.");
+}
 
 function mostraPalavrasChave() {
-    const texto = document.querySelector('#entrada-de-texto').value;
+    const texto = document.querySelector('#entrada-de-texto')?.value; // Use optional chaining for robustness
     const campoResultado = document.querySelector('#resultado-palavrachave');
-    const palavrasChave = processaTexto(texto);
 
+    if (!texto || !campoResultado) {
+        console.warn("Input text field or result field not found or text is empty.");
+        return;
+    }
+
+    const palavrasChave = processaTexto(texto);
     campoResultado.textContent = palavrasChave.join(", ");
 }
 
 function processaTexto(texto) {
-    let palavras = texto.split(/\P{L}+/u);
+    // Use a more robust regex for splitting words that handles various Unicode characters
+    let palavras = texto.split(/[\s\p{P}]+/u).filter(Boolean); // Filter out empty strings from split
 
     for (let i in palavras) {
         palavras[i] = palavras[i].toLowerCase();
@@ -33,13 +44,9 @@ function processaTexto(texto) {
 
 function contaFrequencias(palavras) {
     let frequencias = {};
-    for (let i of palavras) {
-        frequencias[i] = 0;
-        for (let j of palavras) {
-            if (i == j) {
-                frequencias[i]++;
-            }
-        }
+    for (let palavra of palavras) {
+        // Increment count for existing words, or initialize to 1 for new words
+        frequencias[palavra] = (frequencias[palavra] || 0) + 1;
     }
     return frequencias;
 }
@@ -47,6 +54,7 @@ function contaFrequencias(palavras) {
 function tiraPalavrasRuins(palavras) {
     const palavrasBoas = [];
     for (let palavra of palavras) {
+        // Ensure the word is not in the bad words set and has a length greater than 2
         if (!PALAVRAS_RUINS.has(palavra) && palavra.length > 2) {
             palavrasBoas.push(palavra);
         }
