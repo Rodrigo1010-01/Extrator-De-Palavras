@@ -122,5 +122,6 @@ export const PALAVRAS_RUINS = new Set([
     "segundo",
     "acho",
     "pode",
-    "n"
+    "n",
+    "suficiente",
 ]);
